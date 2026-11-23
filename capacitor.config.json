@@ -1,0 +1,6 @@
+{
+  "appId": "ge.financetrainer.tasktrainer",
+  "appName": "TaskTrainer",
+  "webDir": "www",
+  "android": { "backgroundColor": "#0B111E" }
+}

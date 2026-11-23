@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1729">
+<title>TaskTrainer — FINANCE TRAINER GE</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
+<style>html,body{margin:0;background:#0f1729;color:#9aa8bd;font-family:sans-serif}</style></head>
+<body>
+<script>
+/* TaskTrainer · cargador de arranque.
+   - Abre SIEMPRE la app guardada en el teléfono (funciona sin internet).
+   - Si la app descargó una versión más nueva (actualización automática), usa esa.
+   - Si la versión nueva no llega a arrancar, vuelve sola a la anterior. */
+(function(){
+  var NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+  function cmp(a,b){a=String(a||"0").split(".").map(Number);b=String(b||"0").split(".").map(Number);for(var i=0;i<3;i++){var x=a[i]||0,y=b[i]||0;if(x!==y)return x>y?1:-1}return 0}
+  function db(){return new Promise(function(ok){try{var r=indexedDB.open("tt_ota",1);r.onupgradeneeded=function(){r.result.createObjectStore("o")};r.onsuccess=function(){ok(r.result)};r.onerror=function(){ok(null)}}catch(e){ok(null)}})}
+  function get(){return db().then(function(d){return new Promise(function(ok){if(!d)return ok(null);try{var q=d.transaction("o").objectStore("o").get("app");q.onsuccess=function(){ok(q.result||null)};q.onerror=function(){ok(null)}}catch(e){ok(null)}})})}
+  function del(){return db().then(function(d){return new Promise(function(ok){if(!d)return ok();try{var t=d.transaction("o","readwrite");t.objectStore("o").delete("app");t.oncomplete=function(){ok()};t.onerror=function(){ok()}}catch(e){ok()}})})}
+  function run(html){document.open();document.write(html);document.close()}
+  fetch("app.html").then(function(r){return r.text()}).then(function(local){
+    if(!NATIVE)return run(local);
+    var lv=(local.match(/name="tt-ver" content="([^"]+)"/)||[])[1];
+    return get().then(function(o){
+      var boot=null;try{boot=localStorage.getItem("tt_boot")}catch(e){}
+      if(o&&boot==="ota"){try{localStorage.setItem("tt_boot","fail")}catch(e){}return del().then(function(){run(local)})}
+      if(o&&o.html&&cmp(o.v,lv)>0){try{localStorage.setItem("tt_boot","ota")}catch(e){}return run(o.html)}
+      run(local)
+    })
+  }).catch(function(){document.body.innerHTML='<p style="padding:2rem">No se pudo abrir TaskTrainer. Cierra y vuelve a abrir la app.</p>'});
+})();
+</script>
+</body></html>

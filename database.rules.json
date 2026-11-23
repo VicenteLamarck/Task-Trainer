@@ -1,0 +1,131 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "admins": {
+      "$a": {
+        ".read": "auth.uid === $a",
+        ".write": "(root.child('admins').child(auth.uid).val() === true) || (auth.uid === $a && !root.child('admins').exists() && root.child('adminSetup').child(auth.uid).child('k').val() === 'igxa-ibwz-scfl-4vxv')",
+        ".validate": "newData.val() === true || newData.val() === 'staff'"
+      }
+    },
+    "users": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+        "uid": {
+          ".write": "auth.uid === $uid && newData.val() === $uid"
+        },
+        "name": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length < 80"
+        },
+        "phone": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length < 30"
+        },
+        "created": {
+          ".write": "auth.uid === $uid && (!data.exists() || newData.val() === data.val())",
+          ".validate": "newData.isNumber() && (data.exists() || (root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff') || (newData.val() >= now - 300000 && newData.val() <= now + 300000))"
+        },
+        "lastSeen": {
+          ".write": "auth.uid === $uid"
+        },
+        "ref": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length < 60"
+        },
+        "method": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length < 30"
+        },
+        "ih": {
+          ".write": "auth.uid === $uid"
+        },
+        "reqAt": {
+          ".write": "auth.uid === $uid"
+        },
+        "status": {
+          ".write": "auth.uid === $uid && newData.val() === 'pending'"
+        },
+        "rc": {
+          ".write": "auth.uid === $uid && (!data.exists() || newData.val() === data.val())",
+          ".validate": "newData.isString() && newData.val().length < 20"
+        },
+        "refBy": {
+          ".write": "auth.uid === $uid && (!data.exists() || newData.val() === data.val())",
+          ".validate": "newData.isString() && newData.val().length < 20"
+        },
+        "plan": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.val() === 'm' || newData.val() === 'q' || newData.val() === 'y' || newData.val() === 'f'"
+        },
+        "coupon": {
+          ".write": "auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length < 20"
+        }
+      }
+    },
+    "img": {
+      "$uid": {
+        ".read": "auth.uid === $uid || (root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+        ".write": "auth.uid === $uid",
+        ".validate": "newData.child('d').isString() && newData.child('d').val().length < 200000 && newData.child('d').val().beginsWith('data:image/')"
+      }
+    },
+    "feedback": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+      "$id": {
+        ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+        ".validate": "newData.hasChildren(['uid','text','t']) && newData.child('text').val().length < 700 && (!newData.child('rating').exists() || (newData.child('rating').isNumber() && newData.child('rating').val() >= 0 && newData.child('rating').val() <= 5))",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length < 80"
+        },
+        "type": {
+          ".validate": "newData.isString() && newData.val().length < 20"
+        },
+        "uid": {
+          ".validate": "newData.val() === auth.uid"
+        }
+      }
+    },
+    "config": {
+      ".read": "auth != null",
+      ".write": "root.child('admins').child(auth.uid).val() === true"
+    },
+    "recover": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+      "$uid": {
+        ".write": "auth.uid === $uid || (root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+        ".validate": "newData.hasChildren(['phone','code']) && newData.child('code').val().length < 20",
+        "uid": {
+          ".validate": "newData.val() === $uid"
+        },
+        "phone": {
+          ".validate": "newData.isString() && newData.val().length < 30"
+        }
+      }
+    },
+    "coupons": {
+      ".read": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')",
+      "$code": {
+        ".read": "auth != null",
+        ".write": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff')"
+      }
+    },
+    "audit": {
+      ".read": "root.child('admins').child(auth.uid).val() === true",
+      "$id": {
+        ".write": "(root.child('admins').child(auth.uid).val() === true || root.child('admins').child(auth.uid).val() === 'staff') && !data.exists()"
+      }
+    },
+    "adminSetup": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid && !root.child('admins').exists()",
+        ".validate": "newData.child('k').isString() && newData.child('k').val().length < 40"
+      }
+    }
+  }
+}
